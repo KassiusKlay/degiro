@@ -1,9 +1,10 @@
 # Degiro Interactive Dashboard
 
 This personal project will give you a different look at your portfolio from Degiro.
-This webapp requires that you upload two files from the Degiro App to process and Data and show the graphs
 
-Important Notes: 
+The app requires that you upload two files from the Degiro App to process and Data and show the graphs - see instructions below.
+
+*Important Notes:*
 1. The files are completely anonymous, there is nothing to connect the data to your name or email (you can obviously check them before uploading).
 2. The application has no way to store the data. The code is open source above.
 
