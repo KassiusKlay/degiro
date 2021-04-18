@@ -53,19 +53,18 @@ merged_data = utils.merge_historical_data_with_transactions(
         dict_of_available_tickers,
         transactions_dataframe)
 
+st.write("---")
 st.write("## Account Balance")
-
 account_balance_graph(account_dataframe)
-
 
 st.write("---")
 st.write("## Stocks in Portfolio")
-
+st.write("Shows when you bought the stock over historical data")
 individual_stocks_graphs(dict_of_available_tickers, transactions_dataframe)
-
 
 st.write("---")
 st.write("## Stock Returns")
-
+st.write("Returns since you first bought the stock")
 combined_returns_line_graph(merged_data)
+st.write("Returns since you first bought, in shadow returns after you sold")
 owned_sold_returns_bar_graph(merged_data)
