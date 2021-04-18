@@ -1,26 +1,29 @@
 # Degiro Interactive Dashboard
 
 This personal project will give you a different look at your portfolio from Degiro.
-This webapp requires that you upload two files from the Degiro App to process and Data and show the graphs
 
-Important Notes: 
+The app requires that you upload two files from the Degiro App to process and Data and show the graphs - see instructions below.
+
+*Important Notes:*
 1. The files are completely anonymous, there is nothing to connect the data to your name or email (you can obviously check them before uploading).
 2. The application has no way to store the data. The code is open source above.
 
 ## Example
 
-### Check your account movements over the years
+Check your account movements over the years
 
 ![](https://github.com/KassiusKlay/degiro/blob/master/img/streamlit_account.png "streamlit_account")
+---
 
-### Check individual stocks in your portfolio
+Check individual stocks in your portfolio
 
 ![](https://github.com/KassiusKlay/degiro/blob/master/img/streamlit_stocks.png "streamlit_stocks")
+---
 
-### Check how they performed and whether you should have sold
+Check how they performed and whether you should have sold
 
 ![](https://github.com/KassiusKlay/degiro/blob/master/img/streamlit_returns.png "streamlit_returns")
-
+---
 
 ## Instructions
 
