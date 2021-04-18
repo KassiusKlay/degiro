@@ -16,13 +16,13 @@ This personal project will give you a different look at your portfolio from Degi
 ![](https://github.com/KassiusKlay/degiro/blob/master/img/transactions_start_date.png "transactions_start_date")
 
 5. Export the file as CSV (this will create the required **Transactions.csv**)
-![](https://github.com/KassiusKlay/degiro/blob/master/img/transactions_start_date.png "transactions_export")
+![](https://github.com/KassiusKlay/degiro/blob/master/img/transactions_export.png "transactions_export")
 
 6. Click on "Wallet" and select a starting date (again, any date before you started using Degiro)
 ![](https://github.com/KassiusKlay/degiro/blob/master/img/account_start_date.png "account_start_date")
 
 7. Export the file as CSV (this will create the required **Account.csv**)
-![](https://github.com/KassiusKlay/degiro/blob/master/img/account_start_date.png "account_export")
+![](https://github.com/KassiusKlay/degiro/blob/master/img/account_export.png "account_export")
 
 8. On the Streamlit App, click on the arrow on the top left to open the sidebar
 ![](https://github.com/KassiusKlay/degiro/blob/master/img/streamlit_sidebar.png "streamlit_sidebar")
