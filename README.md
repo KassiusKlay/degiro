@@ -9,18 +9,20 @@ Important Notes:
 
 ## Example
 
-### Check your account movements over the years
+Check your account movements over the years
 
 ![](https://github.com/KassiusKlay/degiro/blob/master/img/streamlit_account.png "streamlit_account")
+---
 
-### Check individual stocks in your portfolio
+Check individual stocks in your portfolio
 
 ![](https://github.com/KassiusKlay/degiro/blob/master/img/streamlit_stocks.png "streamlit_stocks")
+---
 
-### Check how they performed and whether you should have sold
+Check how they performed and whether you should have sold
 
 ![](https://github.com/KassiusKlay/degiro/blob/master/img/streamlit_returns.png "streamlit_returns")
-
+---
 
 ## Instructions
 
