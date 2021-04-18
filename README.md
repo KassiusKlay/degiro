@@ -6,6 +6,7 @@ This personal project will give you a different look at your portfolio from Degi
 
 1. Login to your Degiro Account
 2. Click on Activity on the sidebar on the left
+
 ![](https://github.com/KassiusKlay/degiro/blob/master/img/activity.png "activity")
 3. Click on Transactions on the sidebar or on the menu
 ![](https://github.com/KassiusKlay/degiro/blob/master/img/transactions.png "transactions")
