@@ -1,6 +1,7 @@
+from account import account_balance_graph
 from individual_stocks import individual_stocks_graphs
 from returns import combined_returns_line_graph, owned_sold_returns_bar_graph
-from account import account_balance_graph
+from summary import get_summary_data
 import streamlit as st
 import SessionState
 import utils
@@ -11,6 +12,19 @@ st.title("Degiro Interactive Dashboard")
 placeholder = st.empty()
 uploaded_files = st.sidebar.file_uploader(
         "", type='.csv', accept_multiple_files=True)
+
+st.sidebar.write("""
+    ## Disclaimer
+    Some products might not be available on Yahoo Finance (tracking tool used)
+
+    Most graphs allow:
+
+    1. Drag
+    2. Zoom
+
+    Stock Returns Line Graph allows:
+
+    - Select individual stocks with shift+click on legend""")
 
 if not utils.check_uploaded_files(uploaded_files):
     placeholder.markdown(
@@ -53,18 +67,26 @@ merged_data = utils.merge_historical_data_with_transactions(
         dict_of_available_tickers,
         transactions_dataframe)
 
+general_data = utils.get_general_data(
+        dict_of_available_tickers,
+        transactions_dataframe)
+
+st.write("---")
+st.write("## Summary")
+summary = get_summary_data(general_data)
+summary
+
 st.write("---")
 st.write("## Account Balance")
 account_balance_graph(account_dataframe)
 
 st.write("---")
-st.write("## Stocks in Portfolio")
-st.write("Shows when you bought the stock over historical data")
+st.write("## Historical Data")
 individual_stocks_graphs(dict_of_available_tickers, transactions_dataframe)
 
 st.write("---")
 st.write("## Stock Returns")
-st.write("Returns since you first bought the stock")
 combined_returns_line_graph(merged_data)
-st.write("Returns since you first bought, in shadow returns after you sold")
 owned_sold_returns_bar_graph(merged_data)
+
+

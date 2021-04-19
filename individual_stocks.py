@@ -25,9 +25,9 @@ def cross_chart_between_selected_dates(
     chart = alt.Chart(df).mark_circle().encode(
             x='Date:T',
             y='Price:Q', size=alt.Size('Price:Q', legend=None),
-            tooltip=['Number', 'Total Cost'],
+            tooltip=['Shares', 'Total Cost'],
             color=alt.Color(
-                'Number:O',
+                'Shares:O',
                 scale=alt.Scale(scheme='reds'))).interactive()
     return chart
 

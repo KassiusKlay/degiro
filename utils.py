@@ -1,8 +1,10 @@
+import numpy as np
 import re
 import requests
 import yfinance as yf
 import pandas as pd
 import streamlit as st
+from forex_python.converter import CurrencyRates
 
 
 @st.cache
@@ -56,7 +58,7 @@ def process_transactions_dataframe(df):
             'Product',
             'ISIN',
             'Exchange',
-            'Number',
+            'Shares',
             'Price',
             'Currency',
             'Cost (Exchange)',
@@ -132,9 +134,9 @@ def merge_historical_data_with_transactions(
         data = data.loc[data.Date.dt.date >= df.Date.min()]
         data = pd.merge(
                 data,
-                df[['Date', 'Number', 'Price', 'Total Cost']], how='outer')
-        data.Number.fillna(0, inplace=True)
-        data.Number = data.Number.cumsum()
+                df[['Date', 'Shares', 'Price', 'Total Cost']], how='outer')
+        data.Shares.fillna(0, inplace=True)
+        data.Shares = data.Shares.cumsum()
         data['Ticker'] = ticker
         merged_data = pd.concat(
                 [merged_data, data])
@@ -146,10 +148,10 @@ def process_splits_data(dict_of_available_tickers, transactions_dataframe):
     for ticker, value in dict_of_available_tickers.items():
         if not value['Splits'].empty:
             for i in value['Splits'].index:
-                transactions_dataframe.Number.loc[
+                transactions_dataframe.Shares.loc[
                     (transactions_dataframe.Date.dt.date <= i.date())
                     & (transactions_dataframe.ISIN
-                        == value['ISIN'])] = transactions_dataframe.Number.loc[
+                        == value['ISIN'])] = transactions_dataframe.Shares.loc[
                     (transactions_dataframe.Date.dt.date <= i.date())
                     & (transactions_dataframe.ISIN
                         == value['ISIN'])] * value['Splits'].loc[i]
@@ -165,3 +167,69 @@ def process_splits_data(dict_of_available_tickers, transactions_dataframe):
                     | (transactions_dataframe.ISIN != value['ISIN'])
                     | (transactions_dataframe.Currency.isnull())]
     return transactions_dataframe
+
+
+@st.cache
+def get_general_data(dict_of_available_tickers, transactions_dataframe):
+    c = CurrencyRates()
+    general_data = pd.DataFrame(columns=[
+        'Ticker',
+        'Shares BUY',
+        'BUY price',
+        'Total BUY',
+        'Shares SELL',
+        'SELL price',
+        'SELL %',
+        'Total SELL',
+        'Current price',
+        'Current %',
+        'Current Value',
+        'Value %'])
+
+    for ticker in dict_of_available_tickers.keys():
+        ticker_transactions = transactions_dataframe.loc[
+                transactions_dataframe.ISIN
+                == dict_of_available_tickers[ticker]['ISIN']]
+        buy = ticker_transactions.loc[ticker_transactions.Shares > 0]
+        sell = ticker_transactions.loc[ticker_transactions.Shares < 0]
+
+        shares_buy = buy.Shares.sum()
+        shares_owned = ticker_transactions.Shares.sum()
+        total_buy = buy['Cost (Local)'].sum() * -1
+        currency_local = buy['Currency (Local)'].unique()[0]
+        average_buy_price = buy[
+                'Cost (Exchange)'
+                ].sum() * -1 / buy.Shares.sum()
+        currency_exchange = buy.Currency.unique()[0]
+        current_price = dict_of_available_tickers[
+                ticker]['Data']['Close'].iloc[-1]
+        percentage_current = (
+                current_price - average_buy_price) / average_buy_price
+        current_exchange_rate = c.get_rate(currency_exchange, currency_local)
+        current_value = shares_owned * current_price * current_exchange_rate
+        percentage_value = (current_value - total_buy) / total_buy
+        if not sell.empty:
+            total_sell = sell['Total Cost'].sum()
+            tmp = sell['Shares'] * sell['Price']
+            average_sell_price = tmp.sum() / sell['Shares'].sum()
+            percentage_sell = (
+                    average_sell_price - average_buy_price) / average_buy_price
+            shares_sell = shares_buy - shares_owned
+
+        new_row = {
+                'Ticker': ticker,
+                'Shares BUY': shares_buy,
+                'BUY price': average_buy_price,
+                'Total BUY': total_buy,
+                'Shares SELL': np.nan if sell.empty else shares_sell,
+                'SELL price': np.nan if sell.empty else average_sell_price,
+                'SELL %': np.nan if sell.empty else percentage_sell,
+                'Total SELL': np.nan if sell.empty else total_sell,
+                'Current price': current_price,
+                'Current %': percentage_current,
+                'Current Value': current_value if sell.empty else np.nan,
+                'Value %': percentage_value if sell.empty else np.nan}
+
+        general_data = general_data.append(new_row, ignore_index=True)
+
+    return general_data
