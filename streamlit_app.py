@@ -45,6 +45,9 @@ transactions_dataframe = utils.load_data(
 transactions_dataframe = utils.process_transactions_dataframe(
         transactions_dataframe)
 
+st.write("Account DF")
+st.write(account_dataframe)
+
 ticker_list = []
 for ISIN in transactions_dataframe.ISIN.unique():
     ticker_list.append(utils.get_ticker_from_ISIN(ISIN))
@@ -63,13 +66,20 @@ transactions_dataframe = utils.process_splits_data(
         dict_of_available_tickers,
         transactions_dataframe)
 
+st.write("Transactions DF")
+st.write(transactions_dataframe)
+
 merged_data = utils.merge_historical_data_with_transactions(
         dict_of_available_tickers,
         transactions_dataframe)
+st.write("Merged Data")
+st.write(merged_data)
 
 general_data = utils.get_general_data(
         dict_of_available_tickers,
         transactions_dataframe)
+st.write("General Data")
+st.write(general_data)
 
 st.write("---")
 st.write("## Summary")
