@@ -45,8 +45,21 @@ transactions_dataframe = utils.load_data(
 transactions_dataframe = utils.process_transactions_dataframe(
         transactions_dataframe)
 
+
 ticker_list = []
 for ISIN in transactions_dataframe.ISIN.unique():
+    date_checker = transactions_dataframe.loc[
+            transactions_dataframe.ISIN == ISIN]
+    if date_checker.Shares.sum() < 0:
+        st.warning("""
+        **Incorrect Time Period**
+
+        Please Upload **Transactions.csv** from the beginning of your account
+        creation
+
+        Instructions [here](https://github.com/KassiusKlay/degiro)
+        """)
+        st.stop()
     ticker_list.append(utils.get_ticker_from_ISIN(ISIN))
 
 dict_of_available_tickers = utils.get_ticker_list_data(ticker_list)

@@ -169,6 +169,7 @@ def process_splits_data(dict_of_available_tickers, transactions_dataframe):
     return transactions_dataframe
 
 
+@st.cache
 def get_general_data(dict_of_available_tickers, transactions_dataframe):
     c = CurrencyRates()
     general_data = pd.DataFrame(columns=[
@@ -189,29 +190,26 @@ def get_general_data(dict_of_available_tickers, transactions_dataframe):
         ticker_transactions = transactions_dataframe.loc[
                 transactions_dataframe.ISIN
                 == dict_of_available_tickers[ticker]['ISIN']]
-        st.write(ticker_transactions['Currency (Local)'].unique())
         buy = ticker_transactions.loc[ticker_transactions.Shares > 0]
         sell = ticker_transactions.loc[ticker_transactions.Shares < 0]
 
-        if not buy.empty:
-            shares_buy = buy.Shares.sum()
-            shares_owned = ticker_transactions.Shares.sum()
-            total_buy = buy['Cost (Local)'].sum() * -1
-            currency_local = buy['Currency (Local)'].unique()[0]
-            average_buy_price = buy[
-                    'Cost (Exchange)'
-                    ].sum() * -1 / buy.Shares.sum()
-            st.write(len(buy.Currency.unique()))
-            currency_exchange = buy.Currency.unique()[0]
-            current_price = dict_of_available_tickers[
-                    ticker]['Data']['Close'].iloc[-1]
-            percentage_current = (
-                    current_price - average_buy_price) / average_buy_price
-            current_exchange_rate = c.get_rate(
-                    currency_exchange, currency_local)
-            current_value = shares_owned * (
-                    current_price * current_exchange_rate)
-            percentage_value = (current_value - total_buy) / total_buy
+        shares_buy = buy.Shares.sum()
+        shares_owned = ticker_transactions.Shares.sum()
+        total_buy = buy['Cost (Local)'].sum() * -1
+        currency_local = buy['Currency (Local)'].unique()[0]
+        average_buy_price = buy[
+                'Cost (Exchange)'
+                ].sum() * -1 / buy.Shares.sum()
+        currency_exchange = buy.Currency.unique()[0]
+        current_price = dict_of_available_tickers[
+                ticker]['Data']['Close'].iloc[-1]
+        percentage_current = (
+                current_price - average_buy_price) / average_buy_price
+        current_exchange_rate = c.get_rate(
+                currency_exchange, currency_local)
+        current_value = shares_owned * (
+                current_price * current_exchange_rate)
+        percentage_value = (current_value - total_buy) / total_buy
         if not sell.empty:
             total_sell = sell['Total Cost'].sum()
             tmp = sell['Shares'] * sell['Price']
