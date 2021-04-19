@@ -37,7 +37,7 @@ Check how they performed and whether you should have sold
  
 ![](https://github.com/KassiusKlay/degiro/blob/master/img/transactions.png "transactions")
 ---
-4. Select the starting date, just click on a random old date like 1990 (**Important:** Must be before the beginning of the account creation or the app won't start)
+4. Select the starting date, just click on a random old date like 1990 **(Important:Must be before the beginning of the account creation or the app won't start)**
  
 ![](https://github.com/KassiusKlay/degiro/blob/master/img/transactions_start_date.png "transactions_start_date")
 ---
