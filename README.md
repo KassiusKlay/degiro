@@ -48,7 +48,7 @@ Compare all your stocks between each other
  
 ![](https://github.com/KassiusKlay/degiro/blob/master/img/transactions.png "transactions")
 ---
-4. Select the starting date **(PLEASE READ: Start Date be before the beginning of the account creation or the app won't start)**
+4. Select the starting date **(PLEASE READ: Start Date must be before the beginning of your account creation)**
  
 ![](https://github.com/KassiusKlay/degiro/blob/master/img/transactions_start_date.png "transactions_start_date")
 ---
