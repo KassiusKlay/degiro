@@ -10,7 +10,7 @@ def get_returns_data(df):
         returns = (close / close.iloc[0] * 100 - 100) / 100
         returns_data = pd.concat([returns_data, returns])
 
-    df['Returns'] = returns_data
+    df = df.assign(Returns=returns_data)
     return df
 
 

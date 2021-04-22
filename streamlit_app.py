@@ -9,6 +9,30 @@ import utils
 session_state = SessionState.get(button='')
 
 st.title("Degiro Interactive Dashboard")
+import numpy as np
+import time
+
+# for i in range(100):
+    # # Update progress bar.
+    # progress_bar.progress(i + 1)
+
+    # new_rows = np.random.randn(10, 2)
+
+    # # Update status text.
+    # status_text.text(
+        # 'The latest random number is: %s' % new_rows[-1, 1])
+
+    # # Append data to the chart.
+    # chart.add_rows(new_rows)
+
+    # # Pretend we're doing some computation that takes time.
+    # time.sleep(0.1)
+
+# status_text.text('Done!')
+# status_text.empty()
+# bar.empty()
+# st.balloons()
+
 placeholder = st.empty()
 uploaded_files = st.sidebar.file_uploader(
         "", type='.csv', accept_multiple_files=True)
@@ -47,6 +71,10 @@ transactions_dataframe = utils.process_transactions_dataframe(
 
 
 ticker_list = []
+bar = st.empty()
+progress_bar = bar.progress(0)
+steps = int(round((100 / len(transactions_dataframe.ISIN.unique())), 0))
+progress = 0
 for ISIN in transactions_dataframe.ISIN.unique():
     date_checker = transactions_dataframe.loc[
             transactions_dataframe.ISIN == ISIN]
@@ -61,6 +89,9 @@ for ISIN in transactions_dataframe.ISIN.unique():
         """)
         st.stop()
     ticker_list.append(utils.get_ticker_from_ISIN(ISIN))
+    progress_bar.progress(progress)
+    progress += steps
+bar.empty()
 
 dict_of_available_tickers = utils.get_ticker_list_data(ticker_list)
 rejected_tickers = ticker_list - dict_of_available_tickers.keys()

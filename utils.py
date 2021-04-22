@@ -101,8 +101,12 @@ def check_valid_ticker_data(tickers, ticker):
         return 0
 
 
-@st.cache
+@st.cache(suppress_st_warning=True)
 def get_ticker_list_data(ticker_list):
+    bar = st.empty()
+    progress_bar = bar.progress(0)
+    steps = int(round((100 / len(ticker_list)), 0))
+    progress = 0
     dict_of_available_tickers = {}
     tickers = yf.Tickers(ticker_list)
     for ticker in tickers.tickers:
@@ -115,6 +119,9 @@ def get_ticker_list_data(ticker_list):
                 'Dividends': tickers.tickers[ticker].dividends
                 }
             dict_of_available_tickers[ticker] = valid_entry
+        progress_bar.progress(progress)
+        progress += steps
+    bar.empty()
     return dict_of_available_tickers
 
 
