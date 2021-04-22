@@ -6,7 +6,7 @@
 
 [Degiro](https://www.degiro.com/) is one of the most used online brokers in Europe, mostly due to its very low trading fees. 
 
-However, its interface is considered terrible by many users and there are not tools to show you how your portfolio is evolving over time. 
+However, its interface is considered terrible by many traders and there aren't many (if any) tools to visualize how your portfolio is performing over time and osme other useful data. 
 
 I developed this webapp that takes your CSV files and displays your trades is a much more appealing way.
 It also allows you to compare the performance of your individual stocks over time.
