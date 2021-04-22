@@ -55,7 +55,7 @@ if not utils.check_uploaded_files(uploaded_files):
         """
         Please upload the **Account.csv** and **Transaction.csv**
         files from Degiro.
-        Instructions [here](https://github.com/KassiusKlay/degiro)
+        Instructions [here](https://github.com/KassiusKlay/degiro#Instructions)
         """)
     st.warning("Please upload the correct files")
     st.stop()
