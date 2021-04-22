@@ -11,7 +11,7 @@ However, its interface is considered terrible by many users and there are not to
 I developed this webapp that takes your CSV files and displays your trades is a much more appealing way.
 It also allows you to compare the performance of your individual stocks over time.
 
-You can see [Examples](#Example) and [Instructions](#Instructions) down below.
+You can see [Examples](#Examples) and [Instructions](#Instructions) down below.
 
 If you have any bugs, suggestions or questions please email me joaocassis@hey.com
 
@@ -19,7 +19,7 @@ If you have any bugs, suggestions or questions please email me joaocassis@hey.co
 1. The CSV files required are completely anonymous, there is nothing to connect your data to your name or email (you can obviously check them before uploading).
 2. Your data is not logged in any way, shape or form. It's only cached in StreamLit servers for faster access everytime you use it. No one has access to it (code is open source so fell free to confirm it).
 
-## Example
+## Examples
 
 Check how much you deposited and withdrew from your account over the years
 
