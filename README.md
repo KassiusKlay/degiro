@@ -9,7 +9,7 @@
 However, its interface is considered terrible by many traders and there aren't many (if any) tools to visualize how your portfolio is performing over time and some other useful data. 
 
 I developed this webapp that takes your CSV files and displays your trades is a much more appealing way.\
-It also allows you to compare the performance of your individual stocks over time.
+It also allows you to compare the performance of your individual stocks osince you first bought them.
 
 You can see [Examples](#Examples) and [Instructions](#Instructions) down below.
 
