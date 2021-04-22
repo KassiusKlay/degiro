@@ -1,6 +1,6 @@
 # Degiro Interactive Dashboard
 
-Launch:  [![Streamlit App](https://static.streamlit.io/badges/streamlit_badge_black_white.svg)](https://share.streamlit.io/kassiusklay/degiro)
+[![Streamlit App](https://static.streamlit.io/badges/streamlit_badge_black_white.svg)](https://share.streamlit.io/kassiusklay/degiro)
 
 ## Introduction
 
