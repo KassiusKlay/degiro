@@ -1,26 +1,37 @@
 # Degiro Interactive Dashboard
 
-This personal project will give you a different look at your portfolio from Degiro.
+[![Streamlit App](https://static.streamlit.io/badges/streamlit_badge_black_white.svg)](https://share.streamlit.io/kassiusklay/degiro)
 
-The app requires that you upload two files from the Degiro App to process and Data and show the graphs - see instructions below.
+## Introduction
 
-*Important Notes:*
-1. The files are completely anonymous, there is nothing to connect the data to your name or email (you can obviously check them before uploading).
-2. The application has no way to store the data. The code is open source above.
+[Degiro](https://www.degiro.com/) is one of the most used online brokers in Europe, mostly due to its very low trading fees. 
 
-## Example
+However, its interface is considered terrible by many traders and there aren't many (if any) tools to visualize how your portfolio is performing over time and some other useful data. 
 
-Check your account movements over the years
+I developed this webapp that takes your CSV files and displays your trades is a much more appealing way.\
+It also allows you to compare the performance of your individual stocks since you first bought them.
+
+You can see [Examples](#Examples) and [Instructions](#Instructions) down below.
+
+If you have any bugs, suggestions or questions please email me joaocassis@hey.com
+
+**PLEASE READ:**
+1. The CSV files required are completely anonymous, there is nothing to connect your data to your name or email (you can obviously check them before uploading).
+2. Your data is not logged in any way, shape or form. It's only cached in [Streamlit](https://streamlit.io/) servers for faster access everytime you use it. No one has access to it (code is open source so fell free to confirm it).
+
+## Examples
+
+Check how much you deposited and withdrew from your account over the years
 
 ![](https://github.com/KassiusKlay/degiro/blob/master/img/streamlit_account.png "streamlit_account")
 ---
 
-Check individual stocks in your portfolio
+Check individual stock trades in your portfolio and compared them with its historical data
 
 ![](https://github.com/KassiusKlay/degiro/blob/master/img/streamlit_stocks.png "streamlit_stocks")
 ---
 
-Check how they performed and whether you should have sold
+Compare all your stocks between each other
 
 ![](https://github.com/KassiusKlay/degiro/blob/master/img/streamlit_returns.png "streamlit_returns")
 ---
@@ -37,7 +48,7 @@ Check how they performed and whether you should have sold
  
 ![](https://github.com/KassiusKlay/degiro/blob/master/img/transactions.png "transactions")
 ---
-4. Select the starting date, just click on a random old date like 1990 **(Important:Must be before the beginning of the account creation or the app won't start)**
+4. Select the starting date **(PLEASE READ: Start Date must be before the beginning of your account creation)**
  
 ![](https://github.com/KassiusKlay/degiro/blob/master/img/transactions_start_date.png "transactions_start_date")
 ---
@@ -45,7 +56,7 @@ Check how they performed and whether you should have sold
  
 ![](https://github.com/KassiusKlay/degiro/blob/master/img/transactions_export.png "transactions_export")
 ---
-6. Click on "Wallet" and select a starting date (again, any date before you started using Degiro)
+6. Click on "Wallet" and select a starting date
  
 ![](https://github.com/KassiusKlay/degiro/blob/master/img/account_start_date.png "account_start_date")
 ---
