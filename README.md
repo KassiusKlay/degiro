@@ -4,7 +4,7 @@
 
 ## Introduction
 
-Degiro is one of the most used online brokers in Europe, mostly due to its very low trading fees. 
+[Degiro](https://www.degiro.com/) is one of the most used online brokers in Europe, mostly due to its very low trading fees. 
 
 However, its interface is considered terrible by many users and there are not tools to show you how your portfolio is evolving over time. 
 
