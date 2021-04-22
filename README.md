@@ -17,7 +17,7 @@ If you have any bugs, suggestions or questions please email me joaocassis@hey.co
 
 **PLEASE READ:**
 1. The CSV files required are completely anonymous, there is nothing to connect your data to your name or email (you can obviously check them before uploading).
-2. The application has no way to store the data. The code is open source for you to confirm.
+2. Your data is not logged in any way, shape or form. It's only cached in StreamLit servers for faster access everytime you use it. No one has access to it (code is open source so fell free to confirm it).
 
 ## Example
 
