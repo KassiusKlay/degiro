@@ -9,29 +9,6 @@ import utils
 session_state = SessionState.get(button='')
 
 st.title("Degiro Interactive Dashboard")
-import numpy as np
-import time
-
-# for i in range(100):
-    # # Update progress bar.
-    # progress_bar.progress(i + 1)
-
-    # new_rows = np.random.randn(10, 2)
-
-    # # Update status text.
-    # status_text.text(
-        # 'The latest random number is: %s' % new_rows[-1, 1])
-
-    # # Append data to the chart.
-    # chart.add_rows(new_rows)
-
-    # # Pretend we're doing some computation that takes time.
-    # time.sleep(0.1)
-
-# status_text.text('Done!')
-# status_text.empty()
-# bar.empty()
-# st.balloons()
 
 placeholder = st.empty()
 uploaded_files = st.sidebar.file_uploader(
@@ -55,7 +32,7 @@ if not utils.check_uploaded_files(uploaded_files):
         """
         Please upload the **Account.csv** and **Transaction.csv**
         files from Degiro.
-        Instructions [here](https://github.com/KassiusKlay/degiro#instructions)
+        Instructions [here](https://github.com/KassiusKlay/degiro)
         """)
     st.warning("Please upload the correct files")
     st.stop()
