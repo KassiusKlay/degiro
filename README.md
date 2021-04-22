@@ -11,7 +11,7 @@ However, its interface is considered terrible by many users and there are not to
 I developed this webapp that takes your CSV files and displays your trades is a much more appealing way.
 It also allows you to compare the performance of your individual stocks over time.
 
-You can see [Examples](##Example) and Instructions down below.
+You can see [Examples](#Example) and [Instructions](#Instructions) down below.
 
 If you have any bugs, suggestions or questions please email me joaocassis@hey.com
 
