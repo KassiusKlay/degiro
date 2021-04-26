@@ -8,7 +8,10 @@ import utils
 
 session_state = SessionState.get(button='')
 
-st.title("Degiro Interactive Dashboard")
+streamlit.image('https://www.mijnbroker.nl/degiro/degiro-review-logo/',
+                use_column_width=True)
+
+st.title("Degiro Interactive Visual Tool")
 
 placeholder = st.empty()
 uploaded_files = st.sidebar.file_uploader(
