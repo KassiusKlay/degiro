@@ -8,9 +8,6 @@ import utils
 
 session_state = SessionState.get(button='')
 
-streamlit.image('https://www.mijnbroker.nl/degiro/degiro-review-logo/',
-                use_column_width=True)
-
 st.title("Degiro Interactive Visual Tool")
 
 placeholder = st.empty()
