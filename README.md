@@ -1,6 +1,6 @@
 ![](https://www.mijnbroker.nl/degiro/degiro-review-logo/)
 
-# Degiro Interactive Dashboard
+# Degiro Interactive Visual Tool
 
 [![Streamlit App](https://static.streamlit.io/badges/streamlit_badge_black_white.svg)](https://share.streamlit.io/kassiusklay/degiro)
 
