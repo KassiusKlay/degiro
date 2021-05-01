@@ -246,3 +246,28 @@ def get_general_data(dict_of_available_tickers, transactions_dataframe):
         general_data = general_data.append(new_row, ignore_index=True)
 
     return general_data
+
+
+def check_user_exists(db, user):
+    user_ref = db.collection('degiro').document(user)
+    if user_ref.get().exists:
+        return 1
+    return 0
+
+
+def check_same_password(password, user_password):
+    if password == user_password:
+        return 1
+    else:
+        return 0
+
+
+def check_valid_credentials(db, user, password):
+    if not check_user_exists(db, user):
+        return 0
+    user_ref = db.collection('degiro').document(user)
+    user_data = user_ref.get().to_dict()
+    user_password = user_data['password']
+    if not check_same_password(password, user_password):
+        return 0
+    return 1

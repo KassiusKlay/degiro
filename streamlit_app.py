@@ -5,14 +5,36 @@ from summary import get_summary_data
 import streamlit as st
 import SessionState
 import utils
+import json
+from google.oauth2 import service_account
+from google.cloud import firestore
+import login
+import upload
 
-session_state = SessionState.get(button='')
+key_dict = json.loads(st.secrets["textkey"])
+creds = service_account.Credentials.from_service_account_info(key_dict)
+db = firestore.Client(credentials=creds)
+
+session_state = SessionState.get(
+        button=False,
+        list_of_df=False)
 
 st.title("Degiro Interactive Visual Tool")
 
-placeholder = st.empty()
-uploaded_files = st.sidebar.file_uploader(
-        "", type='.csv', accept_multiple_files=True)
+option_placeholder = st.sidebar.empty()
+if not session_state.list_of_df:
+    option = option_placeholder.radio(
+            'Choose option',
+            ['Upload Files', 'Login'])
+    if option == 'Login':
+        session_state.list_of_df = login.log_in(db)
+    else:
+        session_state.list_of_df = upload.upload_files(db)
+if session_state.list_of_df:
+    reload = option_placeholder.button('Reload Data?')
+    if reload:
+        session_state.list_of_df = False
+        st.stop()
 
 st.sidebar.write("""
     ## Disclaimer
@@ -27,25 +49,11 @@ st.sidebar.write("""
 
     - Select individual stocks with shift+click on legend""")
 
-if not utils.check_uploaded_files(uploaded_files):
-    placeholder.markdown(
-        """
-        Please upload the **Account.csv** and **Transaction.csv**
-        files from Degiro.
-        Instructions [here](https://github.com/KassiusKlay/degiro)
-        """)
-    st.warning("Please upload the correct files")
-    st.stop()
-placeholder.empty()
-
-account_dataframe = utils.load_data(
-        sorted(uploaded_files, key=lambda x: x.name)[0])
+account_dataframe = session_state.list_of_df[0]
 account_dataframe = utils.process_account_dataframe(account_dataframe)
-transactions_dataframe = utils.load_data(
-        sorted(uploaded_files, key=lambda x: x.name)[1])
+transactions_dataframe = session_state.list_of_df[1]
 transactions_dataframe = utils.process_transactions_dataframe(
-        transactions_dataframe)
-
+    transactions_dataframe)
 
 ticker_list = []
 bar = st.empty()
