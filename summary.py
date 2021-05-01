@@ -42,8 +42,6 @@ def get_summary_data(general_data):
 
     portfolio = portfolio.append(total_row, ignore_index=True)
 
-    portfolio.loc['Column_Total'] = portfolio.sum(numeric_only=True, axis=0)
-
     portfolio = portfolio.style.applymap(
             percentage, subset=['SELL %', 'Value %']).format(
                     {
@@ -53,4 +51,4 @@ def get_summary_data(general_data):
                         'SELL %': '{:+.0%}',
                         'Value %': '{:+.0%}'}, na_rep='-')
 
-    return portfolio
+    st.write(portfolio)

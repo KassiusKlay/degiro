@@ -263,11 +263,16 @@ def check_same_password(password, user_password):
 
 
 def check_valid_credentials(db, user, password):
+    if not user or not password:
+        st.sidebar.warning('Please type your username and password')
+        return 0
     if not check_user_exists(db, user):
+        st.sidebar.warning("User doesn't exist")
         return 0
     user_ref = db.collection('degiro').document(user)
     user_data = user_ref.get().to_dict()
     user_password = user_data['password']
     if not check_same_password(password, user_password):
+        st.sidebar.warning("Wrong password")
         return 0
     return 1

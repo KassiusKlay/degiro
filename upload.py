@@ -26,6 +26,24 @@ def save_data_in_db(list_of_df, db, user, password):
         'transactions_columns': transactions_columns})
 
 
+def check_new_account_credentials(db, user, password):
+    if not user and not password:
+        st.sidebar.warning('Please choose a username and password')
+        return 0
+    if user:
+        if utils.check_user_exists(db, user):
+            st.sidebar.warning(
+                    'User already exists. \
+                            Choose another one or Update Account')
+            return 0
+    if password:
+        if len(password) < 8:
+            st.sidebar.warning(
+                    'Password must have minimum 8 characters')
+            return 0
+    return 1
+
+
 def upload_files(db):
     warning_placeholder = st.empty()
     upload_files = st.sidebar.empty()
@@ -39,49 +57,50 @@ def upload_files(db):
         """)
         st.warning("Please upload the correct files")
         st.stop()
+
     list_of_df = get_list_of_df_from_uploaded_files(uploaded_files)
+
     store_placeholder = st.sidebar.empty()
     user_placeholder = st.sidebar.empty()
     pass_placeholder = st.sidebar.empty()
     confirm_placeholder = st.sidebar.empty()
-    invalid_user = True
-    invalid_password = True
+
     store_selection = store_placeholder.radio(
             'Want to store data for future use?',
-            ['Yes', 'No'])
-    if store_selection == 'Yes':
+            ['Update account', 'New account', 'No'])
+    confirm = confirm_placeholder.button('Confirm')
+
+    if store_selection == 'New account':
         user = user_placeholder.text_input(
                 'Choose a new Username',
                 value='')
-        if user:
-            if utils.check_user_exists(db, user):
-                st.sidebar.warning(
-                        'User already exists. Choose another one or Login')
-            else:
-                invalid_user = False
         password = pass_placeholder.text_input(
                 'Choose a Password',
                 value='')
-        if password:
-            if len(password) < 8:
-                st.sidebar.warning(
-                        'Password must have minimum 8 characters')
-            else:
-                invalid_password = False
-        if not invalid_user and not invalid_password:
-            confirm = confirm_placeholder.button('Confirm')
-            if not confirm:
-                st.stop()
+        if confirm and check_new_account_credentials(db, user, password):
             save_data_in_db(list_of_df, db, user, password)
             user_placeholder.empty()
             pass_placeholder.empty()
         else:
             st.stop()
-    else:
-        confirm = confirm_placeholder.button('Confirm')
-        if not confirm:
+    elif store_selection == 'Update account':
+        user = user_placeholder.text_input(
+                'User',
+                value='')
+        password = pass_placeholder.text_input(
+                'Password',
+                value='')
+        if confirm and utils.check_valid_credentials(db, user, password):
+            save_data_in_db(list_of_df, db, user, password)
+            user_placeholder.empty()
+            pass_placeholder.empty()
+        else:
             st.stop()
+    if not confirm:
+        st.stop()
+
     store_placeholder.empty()
     confirm_placeholder.empty()
     upload_files.empty()
+
     return list_of_df

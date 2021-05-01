@@ -22,23 +22,18 @@ def get_data_from_db(db, user):
     return [account_dataframe, transactions_dataframe]
 
 
-def log_in(db):
+def login(db):
     user_placeholder = st.sidebar.empty()
     pass_placeholder = st.sidebar.empty()
-    log_in_placeholder = st.sidebar.empty()
+    login_placeholder = st.sidebar.empty()
     user = user_placeholder.text_input('User', value='')
     password = pass_placeholder.text_input('Password', value='')
-    log_in = log_in_placeholder.button('Login')
-    if not (log_in and user and password):
-        st.stop()
-    if not utils.check_valid_credentials(db, user, password):
-        st.sidebar.warning("""
-        Invalid User/Password
-        """)
-        st.stop()
-    else:
+    login_button = login_placeholder.button('Login')
+    if login_button and utils.check_valid_credentials(db, user, password):
         user_placeholder.empty()
         pass_placeholder.empty()
-        log_in_placeholder.empty()
+        login_placeholder.empty()
         stored_data = get_data_from_db(db, user)
-    return stored_data
+        return stored_data
+    else:
+        st.stop()
