@@ -51,7 +51,7 @@ def upload_files(db):
             "", type='.csv', accept_multiple_files=True)
     if not utils.check_uploaded_files(uploaded_files):
         warning_placeholder.markdown("""
-        Please upload the **Account.csv** and **Transaction.csv**
+        Upload the **Account.csv** and **Transaction.csv**
         files from Degiro.
         Instructions [here](https://github.com/KassiusKlay/degiro)
         """)

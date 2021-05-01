@@ -129,3 +129,11 @@ st.write("---")
 st.write("## Stock Returns")
 returns.combined_returns_line_graph(merged_data)
 returns.owned_sold_returns_bar_graph(merged_data)
+
+hide_streamlit_style = """
+            <style>
+            #MainMenu {visibility: hidden;}
+            footer {visibility: hidden;}
+            </style>
+            """
+st.markdown(hide_streamlit_style, unsafe_allow_html=True)
