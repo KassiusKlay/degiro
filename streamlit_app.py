@@ -40,28 +40,14 @@ def rejected_tickers_confirm():
         st.stop()
 
 
-# hide_streamlit_style = """
-            # <style>
-            # #MainMenu {visibility: hidden;}
-            # footer {visibility: hidden;}
-            # </style>
-            # """
-# st.markdown(hide_streamlit_style, unsafe_allow_html=True)
+hide_streamlit_style = """
+            <style>
+            #MainMenu {visibility: hidden;}
+            footer {visibility: hidden;}
+            </style>
+            """
+st.markdown(hide_streamlit_style, unsafe_allow_html=True)
 
-footer = """<style>
-#MainMenu {visibility: hidden;}
-footer {
-position: fixed;
-left: 0;
-bottom: 0;
-width: 100%;
-background-color: white;
-color: black;
-text-align: center;
-}
-</style>
-"""
-st.markdown(footer, unsafe_allow_html=True)
 key_dict = json.loads(st.secrets["textkey"])
 creds = service_account.Credentials.from_service_account_info(key_dict)
 db = firestore.Client(credentials=creds)
