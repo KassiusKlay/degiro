@@ -49,6 +49,7 @@ session_state = SessionState.get(
         list_of_df=False)
 
 st.title("Degiro Interactive Visual Tool")
+st.write('---')
 
 get_data()
 
@@ -111,7 +112,6 @@ general_data = utils.get_general_data(
         dict_of_available_tickers,
         transactions_dataframe)
 
-st.write("---")
 st.write("## Summary")
 summary.get_summary_data(general_data)
 
