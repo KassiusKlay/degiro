@@ -1,139 +1,117 @@
-import login
-import upload
-import summary
-import account
-import individual_stocks
-import returns
-import utils
-import SessionState
+from state import _get_state
 import streamlit as st
-import json
-from google.oauth2 import service_account
-from google.cloud import firestore
+import pandas as pd
+import db
+import login
+import altair as alt
+
+APP = 'degiro'
+CREDS = 'user_credentials.xlsx'
 
 
-def get_data():
-    option_placeholder = st.sidebar.empty()
-    if not session_state.list_of_df:
-        option = option_placeholder.radio(
-                'Choose option',
-                ['Upload Files', 'Login'])
+def show_page(state):
+    if st.sidebar.button('Recomecar'):
+        state.clear()
+    df = state.df
+    df['Expedido'] = pd.to_datetime(df['Expedido'], dayfirst=True)
+
+    st.write('## Análises por Mês (exclui Aditamentos)')
+
+    totais = df.loc[~df['Tipo de Exame'].isin([
+                'Aditamento Imunocitoquímica',
+                'HBA - Aditamento de Imunocitoquímica'])]
+
+    number_of_months = (totais.Expedido.max().to_period('M') -
+                        totais.Expedido.min().to_period('M')).n
+    bar = alt.Chart(totais).mark_bar().encode(
+            x=alt.X('yearmonth(Expedido):T', axis=alt.Axis(
+                title='Data', tickCount=number_of_months, grid=False)),
+            y=alt.Y('count(Exame)', axis=alt.Axis(title='Número de Análises'))
+            )
+
+    text = alt.Chart(totais).mark_text(dx=12, dy=-5, color='black').encode(
+            x=alt.X('yearmonth(Expedido):T', axis=alt.Axis(title='Data')),
+            y=alt.Y('count(Exame)', axis=alt.Axis(title='Número de Análises')),
+            text=alt.Text('count(Exame)'))
+
+    st.altair_chart(bar + text, use_container_width=True)
+
+    cols = st.beta_columns(2)
+    cols[0].write(' ## Total de Exames e Honorários - HLUZ')
+    hluz = df.loc[df.Unidade != 'HBA'].groupby('Tipo de Exame').agg(
+            Totais=('Tipo de Exame', 'size'),
+            Média=('Honorários', 'mean'),
+            Mínimo=('Honorários', 'min'),
+            Máximo=('Honorários', 'max')
+            ).sort_values(by='Totais', ascending=False)
+    cols[0].table(hluz)
+
+    cols[1].write(' ## Total de Exames e Honorários - HBA')
+    hba = df.loc[df.Unidade == 'HBA'].groupby('Tipo de Exame').agg(
+            Totais=('Tipo de Exame', 'size'),
+            Média=('Honorários', 'mean'),
+            Mínimo=('Honorários', 'min'),
+            Máximo=('Honorários', 'max')
+            ).sort_values(by='Totais', ascending=False)
+    cols[1].table(hba)
+
+    st.write('# Média de Honorários e Total de Exames por Plano de Saúde')
+    hluz = df.loc[df.Unidade != 'HBA'].groupby('Tipo de Exame')
+    for name, group in hluz:
+        st.write(name)
+        base = alt.Chart(group).mark_bar().encode(
+                y=alt.Y('Plano SS:N', sort='x', axis=alt.Axis(title='')))
+        chart = alt.hconcat(base.encode(x=alt.X(
+            'mean(Honorários):Q',
+            axis=alt.Axis(title='Média de Honorários')), color=alt.Color(
+                'Plano SS:N',
+                sort='x',
+                legend=None,
+                scale=alt.Scale(scheme='category20c'))
+            ), base.encode(
+                x=alt.X('count():Q', axis=alt.Axis(title='Total de Exames'))))
+        st.altair_chart(chart, use_container_width=True)
+
+
+def main():
+    st.set_page_config(layout='wide')
+    state = _get_state()
+
+    dbx = db.get_dropbox_client()
+    state.user_credentials = db.download_dataframe(dbx, APP, CREDS)
+
+    st.sidebar.title("Degiro Visual Tool")
+
+    if not state.user:
+        option = st.sidebar.radio('', ['Login', 'Create Account'])
         if option == 'Login':
-            session_state.list_of_df = login.login(db)
+            login.login(state)
         else:
-            session_state.list_of_df = upload.upload_files(db)
-    if session_state.list_of_df:
-        reload = option_placeholder.button('Reload Data?')
-        if reload:
-            session_state.list_of_df = False
-            option_placeholder.empty()
-            get_data()
+            login.create_account(dbx, state)
+    else:
+        if state.account is None and state.transactions is None:
+            login.get_df(dbx, state)
+        else:
+            st.write('## Account')
+            st.write(state.account)
+            st.write(' ## Transactions')
+            st.write(state.transactions)
+            # show_page(state)
+
+    # side_instructions()
+    state.sync()
 
 
-def rejected_tickers_confirm():
-    if not session_state.button:
-        st.markdown("""Error fetching data from the follwing products:\n
-         - %s""" % (" ".join(rejected_tickers)))
-        if st.button("Click to Continue"):
-            session_state.button = True
-            rejected_tickers_confirm()
-        st.stop()
+def side_instructions():
+    st.sidebar.markdown(r'''
+    ## Instrucções:
+
+    1. Fazer Login ou Criar Conta
+    2. Ver ficheiro\* ou Guardar Ficheiro\*
+
+    *Ficheiro Excel dos honorários
+    ''')
 
 
-hide_streamlit_style = """
-            <style>
-            #MainMenu {visibility: hidden;}
-            footer {visibility: hidden;}
-            </style>
-            """
-st.markdown(hide_streamlit_style, unsafe_allow_html=True)
-
-key_dict = json.loads(st.secrets["textkey"])
-creds = service_account.Credentials.from_service_account_info(key_dict)
-db = firestore.Client(credentials=creds)
-
-session_state = SessionState.get(
-        button=False,
-        list_of_df=False)
-
-st.title("Degiro Interactive Visual Tool")
-st.write('---')
-
-get_data()
-
-st.sidebar.write("""
-    ## Disclaimer
-    Some products might not be available on Yahoo Finance (tracking tool used)
-
-    Most graphs allow:
-
-    1. Drag
-    2. Zoom
-
-    Stock Returns Line Graph allows:
-
-    - Select individual stocks with shift+click on legend""")
-
-account_dataframe = session_state.list_of_df[0]
-account_dataframe = utils.process_account_dataframe(account_dataframe)
-transactions_dataframe = session_state.list_of_df[1]
-transactions_dataframe = utils.process_transactions_dataframe(
-    transactions_dataframe)
-
-ticker_list = []
-bar = st.empty()
-progress_bar = bar.progress(0)
-steps = int(round((100 / len(transactions_dataframe.ISIN.unique())), 0))
-progress = 0
-for ISIN in transactions_dataframe.ISIN.unique():
-    date_checker = transactions_dataframe.loc[
-            transactions_dataframe.ISIN == ISIN]
-    if date_checker.Shares.sum() < 0:
-        st.warning("""
-        **Incorrect Time Period**
-
-        Please Upload **Transactions.csv** from the beginning of your account
-        creation
-
-        Instructions [here](https://github.com/KassiusKlay/degiro)
-        """)
-        st.stop()
-    ticker_list.append(utils.get_ticker_from_ISIN(ISIN))
-    progress_bar.progress(progress)
-    progress += steps
-bar.empty()
-
-dict_of_available_tickers = utils.get_ticker_list_data(ticker_list)
-rejected_tickers = ticker_list - dict_of_available_tickers.keys()
-
-rejected_tickers_confirm()
-
-transactions_dataframe = utils.process_splits_data(
-        dict_of_available_tickers,
-        transactions_dataframe)
-
-merged_data = utils.merge_historical_data_with_transactions(
-        dict_of_available_tickers,
-        transactions_dataframe)
-
-general_data = utils.get_general_data(
-        dict_of_available_tickers,
-        transactions_dataframe)
-
-st.write("## Summary")
-summary.get_summary_data(general_data)
-
-st.write("---")
-st.write("## Account Balance")
-account.account_balance_graph(account_dataframe)
-
-st.write("---")
-st.write("## Historical Data")
-individual_stocks.individual_stocks_graphs(
-        dict_of_available_tickers,
-        transactions_dataframe)
-
-st.write("---")
-st.write("## Stock Returns")
-returns.combined_returns_line_graph(merged_data)
-returns.owned_sold_returns_bar_graph(merged_data)
+if __name__ == "__main__":
+    main()
