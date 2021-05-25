@@ -52,3 +52,10 @@ def get_summary_data(general_data):
                         'Value %': '{:+.0%}'}, na_rep='-')
 
     st.write(portfolio)
+
+
+def show(state):
+    st.write(' ## Processed Account')
+    st.write(state.processed_account)
+    st.write(' ## Processed Transactions')
+    st.write(state.processed_transactions)
