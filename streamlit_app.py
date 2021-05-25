@@ -28,6 +28,8 @@ def main():
 
     dbx = db.get_dropbox_client()
     state.user_credentials = db.download_dataframe(dbx, APP, CREDS)
+    state.user = 'joaocassis'
+    state.uploading_file = True
 
     st.sidebar.title("Degiro Visual Tool")
 
