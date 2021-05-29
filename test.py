@@ -29,6 +29,8 @@ def main():
         process.get_data(state)
 
     if state.products is not None:
+        st.write('OK')
+        st.stop()
         show_page(state)
 
     state.sync()
