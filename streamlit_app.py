@@ -40,13 +40,10 @@ def main():
         else:
             login.create_account(dbx, state)
     else:
-        if state.account is None and state.transactions is None:
+        if state.processed_data is None:
             login.get_df(dbx, state)
         else:
-            if not state.processed_data:
-                process.process_data(state)
-            else:
-                show_pages(state)
+            show_pages(state)
 
     # side_instructions()
     state.sync()

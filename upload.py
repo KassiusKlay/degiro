@@ -1,6 +1,7 @@
 import streamlit as st
 import db
 import pandas as pd
+import process
 
 APP = 'degiro'
 
@@ -53,6 +54,7 @@ def upload_file(dbx, state):
         '', type='.csv', accept_multiple_files=True)
     if len(uploaded_files) == 2:
         check_uploaded_files(state, uploaded_files)
+        process.process_data(state)
         placeholder.warning('Saving files...')
         db.upload_dataframe(
                 dbx,

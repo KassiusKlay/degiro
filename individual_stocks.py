@@ -1,69 +1,59 @@
 import streamlit as st
 import altair as alt
+import pandas as pd
+import datetime
+import degiroapi
 
 
-def line_chart_between_selected_dates(df, start_date, end_date):
-    df = df.loc[
-            (df.Date.dt.year >= start_date)
-            & (df.Date.dt.year <= end_date)]
-    chart = alt.Chart(df).mark_line().encode(
-            alt.X('Date:T'),
-            alt.Y('Close:Q', title='Price'))
-    return chart
+def plot_stocks(state, list_of_stocks):
+    for stock in list_of_stocks:
+        i = [i for i, _ in enumerate(state.products) if _['name'] == stock][0]
+        product_id = state.products[i]['id']
+        name = state.products[i]['name']
+        transactions = state.products[i]['transactions'].copy()
+        historical_data = state.products[i]['historical_data']
+        last_price = state.products[i]['last_price']
+        low52 = state.products[i]['low52']
+        high52 = state.products[i]['high52']
+
+        from_52high = round((1 - high52 / last_price) * 100, 2)
+        st.write(from_52high)
+
+        st.write(f' ## {name}')
+        st.write(transactions)
+
+        transactions.totalPlusFeeInBaseCurrency = (
+                transactions.totalPlusFeeInBaseCurrency.abs())
+        if historical_data is None:
+            st.warning('Couldn\'t get historical data')
+        else:
+            st.write(
+                    'Last Price: ',  last_price, ' Low52: ', low52,
+                    ' High52: ', high52)
+            line = alt.Chart(historical_data).mark_line().encode(
+                x='date:T', y='price:Q')
+            circle = alt.Chart(transactions).mark_circle().encode(
+                    x=alt.X('date:T', title='Date'),
+                    y=alt.Y('price:Q', title='Price'),
+                    size=alt.Size(
+                        'totalPlusFeeInBaseCurrency',
+                        legend=None),
+                    tooltip=['quantity', 'totalPlusFeeInBaseCurrency'],
+                    color=alt.Color(
+                        'buysell',
+                        legend=alt.Legend(title='Buy/Sell'),
+                        scale=alt.Scale(scheme='dark2')
+                        )).interactive()
+
+            st.altair_chart(line + circle, use_container_width=True)
 
 
-def cross_chart_between_selected_dates(
-        transactions_dataframe,
-        ISIN,
-        start_date,
-        end_date):
-
-    df = transactions_dataframe.loc[
-        (transactions_dataframe.Date.dt.year >= start_date)
-        & (transactions_dataframe.Date.dt.year <= end_date)
-        & (transactions_dataframe.ISIN == ISIN)]
-    chart = alt.Chart(df).mark_circle().encode(
-            x='Date:T',
-            y='Price:Q', size=alt.Size('Price:Q', legend=None),
-            tooltip=['Shares', 'Total Cost'],
-            color=alt.Color(
-                'Shares:O',
-                scale=alt.Scale(scheme='reds'))).interactive()
-    return chart
-
-
-def individual_stocks_graphs(
-        dict_of_available_tickers,
-        transactions_dataframe):
-
-    stock_selection = st.multiselect(
-            "Select stocks", list(dict_of_available_tickers.keys()))
-    for stock in stock_selection[::-1]:
-        st.write("**%s**" % stock)
-        start_date = st.slider(
-            "Select start date",
-            key=stock,
-            min_value=dict_of_available_tickers[stock]['Data'].Date.min().year,
-            max_value=dict_of_available_tickers[stock]['Data'].Date.max().year)
-        end_date = st.slider(
-            "Select end date",
-            key=stock,
-            min_value=dict_of_available_tickers[stock]['Data'].Date.min().year,
-            max_value=dict_of_available_tickers[stock]['Data'].Date.max().year,
-            value=dict_of_available_tickers[stock]['Data'].Date.max().year)
-        if (start_date > end_date):
-            st.warning("Start Date > End Date")
-            st.stop()
-        line_chart = line_chart_between_selected_dates(
-                dict_of_available_tickers[stock]['Data'],
-                start_date, end_date)
-
-        cross_chart = cross_chart_between_selected_dates(
-            transactions_dataframe,
-            dict_of_available_tickers[stock]['ISIN'],
-            start_date,
-            end_date)
-
-        combo = line_chart + cross_chart
-
-        st.altair_chart(combo, use_container_width=True)
+def show(state):
+    option = st.radio('', ['Select Stocks', 'All'])
+    list_of_stocks = sorted(
+            [product['name'] for product in state.products])
+    if option == 'All':
+        plot_stocks(state, list_of_stocks)
+    else:
+        selection = st.multiselect('', list_of_stocks)
+        plot_stocks(state, selection)
