@@ -16,7 +16,7 @@ def get_general_data(realprice, transactions, info):
         last_price = realprice[0]['data']['lastPrice']
         low52 = realprice[0]['data']['lowPriceP1Y']
         high52 = realprice[0]['data']['highPriceP1Y']
-        from_high52 = 1 - high52 / last_price
+        from_high52 = - (high52 - last_price) / high52
     else:
         last_price = info['closePrice']
         low52 = high52 = from_high52 = False

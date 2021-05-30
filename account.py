@@ -94,15 +94,15 @@ def general_data(state):
     df = df.style.applymap(
             percentage, subset=['fromHigh52', 'profit']).format(
                     {
-                        'lastPrice': '{:,.0f}',
-                        'low52': '{:,.0f}',
-                        'high52': '{:,.0f}',
+                        'lastPrice': '{:,.2f}',
+                        'low52': '{:,.2f}',
+                        'high52': '{:,.2f}',
                         'fromHigh52': '{:+.1%}',
-                        'buyAverage': '{:,.0f}',
-                        'buyCost': '{:,.0f}',
-                        'sellAverage': '{:,.0f}',
-                        'sellCost': '{:,.0f}',
-                        'currentValue': '{:,.0f}',
+                        'buyAverage': '{:,.2f}',
+                        'buyCost': '{:,.2f}',
+                        'sellAverage': '{:,.2f}',
+                        'sellCost': '{:,.2f}',
+                        'currentValue': '{:,.2f}',
                         'profit': '{:+.1%}'})
     st.write(df)
 
