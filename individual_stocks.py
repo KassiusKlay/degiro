@@ -1,24 +1,49 @@
 import streamlit as st
 import altair as alt
-import pandas as pd
-import datetime
-import degiroapi
 
-from currency_converter import CurrencyConverter
+
+def percentage(val):
+    if val > 0:
+        color = 'green'
+    elif val < 0:
+        color = 'red'
+    else:
+        color = 'black'
+    return 'color: %s' % color
+
+
+def show_general_data(df):
+    df = df.set_index('name')
+    df = df.style.applymap(
+            percentage, subset=['fromHigh52', 'profit']).format(
+                    {
+                        'lastPrice': '{:,.0f}',
+                        'low52': '{:,.0f}',
+                        'high52': '{:,.0f}',
+                        'fromHigh52': '{:+.1%}',
+                        'buyAverage': '{:,.0f}',
+                        'buyCost': '{:,.0f}',
+                        'sellAverage': '{:,.0f}',
+                        'sellCost': '{:,.0f}',
+                        'currentValue': '{:,.0f}',
+                        'profit': '{:+.1%}'})
+    st.dataframe(df)
+
 
 def plot_stocks(state, list_of_stocks):
     for stock in list_of_stocks:
         i = [i for i, _ in enumerate(state.products) if _['name'] == stock][0]
-        product_id = state.products[i]['id']
         name = state.products[i]['name']
-        currency = state.products[i]['currency']
         transactions = state.products[i]['transactions'].copy()
         historical_data = state.products[i]['historical_data']
         general_data = state.products[i]['general_data']
-        st.write(general_data)
 
-        st.write(f' ## {name}')
+        st.write(f'## {name}')
+        st.write('### General Data')
+        show_general_data(general_data)
+        st.write('### Transactions')
         st.write(transactions)
+        st.write('### Historical Data')
 
         if historical_data is None:
             st.warning('Couldn\'t get historical data')

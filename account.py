@@ -5,17 +5,16 @@ import degiroapi
 
 
 def get_deposits_dataframe(df):
-    deposits_dataframe = df.loc[
+    df = df.copy()
+    df = df.loc[
             df.description.str.contains('Dep|With')]
-    deposits_dataframe.description.replace(
+    df.description = df.description.replace(
             'flatex Deposit',
-            'Deposit',
-            inplace=True)
-    deposits_dataframe.description.replace(
+            'Deposit')
+    df.description = df.description.replace(
             'Depósito',
-            'Deposit',
-            inplace=True)
-    return deposits_dataframe
+            'Deposit')
+    return df
 
 
 def account_balance(state, df):
@@ -47,11 +46,14 @@ def last_movement(df):
     latest_movement = df.iloc[0].change
     currency = df.currency.value_counts().idxmax()
     date = df.iloc[0].date.strftime('%d-%m-%y')
-    st.write(f'**Last Movement ({date}):** {latest_movement} {currency}')
+    type_of_movement = 'DEPOSIT' if df.iloc[0].change > 0 else 'WITHDRAWAL'
+    st.write(f'**Last Movement ({date}):** {type_of_movement} \
+            {latest_movement} {currency}')
 
 
 def last_order(state):
     df = state.transactions.iloc[-1]
+    date = df.date.strftime('%d-%m-%y')
     local_currency = state.account.loc[
             (state.account.orderId.notna()) &
             (state.account.change < 0)].iloc[0].currency
@@ -61,17 +63,48 @@ def last_order(state):
     type_of_order = 'BUY' if df.buysell == 'B' else 'SELL'
     name = state.degiro.product_info(df.productId)['name']
     value = abs(df.totalInBaseCurrency) + abs(df.feeInBaseCurrency)
-    st.write(f'**Last Order:** {type_of_order} - {abs(df.quantity)} shares \
-            of {name} for {round(value, 2)} {local_currency} \
+    st.write(f'**Last Order ({date}):** {type_of_order} {abs(df.quantity)} \
+            shares of {name} for {round(value, 2)} {local_currency} \
             at {df.price} {exchange_currency} each')
 
 
 def deposits_chart(df):
     chart = alt.Chart(df).mark_bar().encode(
             alt.Column('year(date):T', title='Year'),
-            alt.Y('sum(change):Q', title='Deposits'),
+            alt.Y('sum(change):Q', title='Ammount'),
             alt.X('description:O', title=None)).properties(width=alt.Step(50))
     st.altair_chart(chart)
+
+
+def percentage(val):
+    if val > 0:
+        color = 'green'
+    elif val < 0:
+        color = 'red'
+    else:
+        color = 'black'
+    return 'color: %s' % color
+
+
+def general_data(state):
+    df = pd.DataFrame()
+    for product in state.products:
+        df = pd.concat([df, product['general_data']])
+    df = df.set_index('name')
+    df = df.style.applymap(
+            percentage, subset=['fromHigh52', 'profit']).format(
+                    {
+                        'lastPrice': '{:,.0f}',
+                        'low52': '{:,.0f}',
+                        'high52': '{:,.0f}',
+                        'fromHigh52': '{:+.1%}',
+                        'buyAverage': '{:,.0f}',
+                        'buyCost': '{:,.0f}',
+                        'sellAverage': '{:,.0f}',
+                        'sellCost': '{:,.0f}',
+                        'currentValue': '{:,.0f}',
+                        'profit': '{:+.1%}'})
+    st.write(df)
 
 
 def show(state):
@@ -81,4 +114,9 @@ def show(state):
     free_cash(state)
     last_movement(deposits_dataframe)
     last_order(state)
-    deposits_chart(deposits_dataframe)
+    options = ['Account Movements', 'Global Stock Data']
+    selection = st.radio('', options)
+    if selection == 'Account Movements':
+        deposits_chart(deposits_dataframe)
+    else:
+        general_data(state)
