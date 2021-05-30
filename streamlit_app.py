@@ -1,64 +1,46 @@
-from state import _get_state
 import streamlit as st
-import db
-import login
+from state import _get_state
+import degiroapi
 import process
-import raw
-import summary
-
-APP = 'degiro'
-CREDS = 'user_credentials.xlsx'
-
-
-def show_pages(state):
-    pages = {
-        'Raw Data': raw.show,
-        'Summary': summary.show
-    }
-    page = st.sidebar.radio('', tuple(pages.keys()))
-    pages[page](state)
+import account
+import individual_stocks
 
 
 def main():
     st.set_page_config(layout='wide')
     state = _get_state()
 
-    if st.sidebar.button('Restart'):
-        state.clear()
+    if state.degiro is None:
+        placeholder = st.empty()
+        with placeholder.form('2FA'):
+            username = st.text_input('Username', '')
+            password = st.text_input('Password', '', type='password')
+            totp = st.text_input('2FA - Leave empty if not needed', '')
+            if st.form_submit_button('Submit'):
+                state.degiro = degiroapi.DeGiro()
+                try:
+                    state.degiro.login(username, password, totp)
+                except Exception:
+                    st.warning('Wrong credentials')
+                    state.degiro = None
+                    st.stop()
 
-    dbx = db.get_dropbox_client()
-    state.user_credentials = db.download_dataframe(dbx, APP, CREDS)
-    state.user = 'joaocassis'
-    state.uploading_file = True
+    if state.degiro and state.products is None:
+        placeholder.empty()
+        process.get_data(state)
 
-    st.sidebar.title("Degiro Visual Tool")
+    if state.products is not None:
+        show_page(state)
 
-    if not state.user:
-        option = st.sidebar.radio('', ['Login', 'Create Account'])
-        if option == 'Login':
-            login.login(state)
-        else:
-            login.create_account(dbx, state)
-    else:
-        if state.processed_data is None:
-            login.get_df(dbx, state)
-        else:
-            show_pages(state)
-
-    # side_instructions()
     state.sync()
 
 
-def side_instructions():
-    st.sidebar.markdown(r'''
-    ## Instrucções:
-
-    1. Fazer Login ou Criar Conta
-    2. Ver ficheiro\* ou Guardar Ficheiro\*
-
-    *Ficheiro Excel dos honorários
-    ''')
+def show_page(state):
+    st.write(' # Account Overview')
+    account.show(state)
+    st.write(' # Individual Stock Data')
+    individual_stocks.show(state)
 
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     main()
