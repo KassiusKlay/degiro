@@ -14,10 +14,11 @@ def percentage(val):
 
 def show_general_data(df):
     df = df.set_index('name')
-    df = df.style.applymap(
-            percentage, subset=['fromHigh52', 'profit']).format(
+    styler = df.style.applymap(
+            percentage, subset=['change', 'fromHigh52', 'profit']).format(
                     {
                         'lastPrice': '{:,.2f}',
+                        'change': '{:+.1%}',
                         'low52': '{:,.2f}',
                         'high52': '{:,.2f}',
                         'fromHigh52': '{:+.1%}',
@@ -27,7 +28,8 @@ def show_general_data(df):
                         'sellCost': '{:,.2f}',
                         'currentValue': '{:,.2f}',
                         'profit': '{:+.1%}'})
-    st.dataframe(df)
+    st.write(styler)
+
 
 
 def plot_stocks(state, list_of_stocks):
@@ -69,11 +71,21 @@ def plot_stocks(state, list_of_stocks):
 
 
 def show(state):
-    option = st.radio('', ['Select Stocks', 'All'])
     list_of_stocks = sorted(
             [product['name'] for product in state.products])
-    if option == 'All':
-        plot_stocks(state, list_of_stocks)
+
+    container = st.beta_container()
+
+    all = st.checkbox('Select all')
+
+    if all:
+        option = container.multiselect(
+                'Select one or more options:',
+                list_of_stocks,
+                list_of_stocks)
     else:
-        selection = st.multiselect('', list_of_stocks)
-        plot_stocks(state, selection)
+        option = container.multiselect(
+                'Select one or more options:',
+                list_of_stocks)
+
+    plot_stocks(state, option)

@@ -7,19 +7,20 @@ from datetime import datetime
 from currency_converter import CurrencyConverter
 
 
-def get_general_data(realprice, transactions, info):
+def get_general_data(realprice, transactions, historical_data, info):
     name = info['name']
     currency = info['currency']
     c = CurrencyConverter()
 
     if realprice:
         last_price = realprice[0]['data']['lastPrice']
+        change = historical_data.price.pct_change().iloc[-1]
         low52 = realprice[0]['data']['lowPriceP1Y']
         high52 = realprice[0]['data']['highPriceP1Y']
         from_high52 = - (high52 - last_price) / high52
     else:
         last_price = info['closePrice']
-        low52 = high52 = from_high52 = False
+        change = low52 = high52 = from_high52 = False
 
     buy = transactions.loc[transactions.buysell == 'B']
     shares_buy = abs(buy.quantity.sum())
@@ -48,6 +49,7 @@ def get_general_data(realprice, transactions, info):
     df = pd.DataFrame([[
                 name,
                 last_price,
+                change,
                 low52,
                 high52,
                 from_high52,
@@ -64,6 +66,7 @@ def get_general_data(realprice, transactions, info):
             columns=[
                 'name',
                 'lastPrice',
+                'change',
                 'low52',
                 'high52',
                 'fromHigh52',
@@ -146,6 +149,16 @@ def process_splits_data(df):
     return df
 
 
+def get_returns_data(transactions, historical_data):
+    df = historical_data.loc[
+            historical_data.date.dt.date >= transactions.date.min()]
+    daily_returns = df.price.pct_change().iloc[1:]
+    cum_daily_returns = (1 + daily_returns).cumprod() - 1
+    cum_daily_returns.name = 'returns'
+    returns = pd.concat([df.date, cum_daily_returns], axis=1)
+    return returns
+
+
 def get_products_data(df, info_real_price):
     info = info_real_price[0]
     realprice = info_real_price[1]
@@ -154,8 +167,7 @@ def get_products_data(df, info_real_price):
     if any(transactions.transactionTypeId == 101):
         transactions = process_splits_data(transactions)
     transactions = transactions.reset_index(drop=True)
-    general_data = get_general_data(
-            realprice, transactions, info)
+
     if realprice:
         historical_data = realprice[1]['data']
         historical_data = pd.DataFrame(
@@ -164,8 +176,14 @@ def get_products_data(df, info_real_price):
                 historical_data.date.astype(int),
                 unit='D',
                 origin=realprice[0]['data']['windowStart'])
+        if info['name'] == 'Tesla':
+            historical_data = historical_data.iloc[2:]
+        returns = get_returns_data(transactions, historical_data)
     else:
-        historical_data = None
+        historical_data = returns = None
+
+    general_data = get_general_data(
+            realprice, transactions, historical_data, info)
 
     return {
             'id': info['id'],
@@ -173,6 +191,7 @@ def get_products_data(df, info_real_price):
             'currency': info['currency'],
             'transactions': transactions,
             'historical_data': historical_data,
+            'returns': returns,
             'general_data': general_data}
 
 
@@ -180,24 +199,24 @@ def get_data(state):
     placeholder = st.empty()
     placeholder.warning('Processing Data... Please Wait')
     portfolio = state.degiro.getdata(degiroapi.Data.Type.PORTFOLIO)
+    if state.info is None:
+        with concurrent.futures.ThreadPoolExecutor() as executor:
+            future1 = executor.submit(get_transactions_data, state)
+            state.transactions = future1.result()
 
-    with concurrent.futures.ThreadPoolExecutor() as executor:
-        future1 = executor.submit(get_transactions_data, state)
-        state.transactions = future1.result()
+            future2 = executor.submit(get_account_data, state)
+            state.account = future2.result()
+            unique = state.transactions.productId.unique().tolist()
+            product_list = [
+                    product for product in portfolio
+                    if product['positionType'] == 'PRODUCT'
+                    if int(product['id']) in unique]
 
-        future2 = executor.submit(get_account_data, state)
-        state.account = future2.result()
-        unique = state.transactions.productId.unique().tolist()
-        product_list = [
-                product for product in portfolio
-                if product['positionType'] == 'PRODUCT'
-                if int(product['id']) in unique]
-
-        info = list(executor.map(
-                get_info_and_real_price, repeat(state), product_list))
-
-    with concurrent.futures.ProcessPoolExecutor() as executor:
-        state.products = list(executor.map(
-                get_products_data,
-                repeat(state.transactions), info))
-    placeholder.empty()
+            state.info = list(executor.map(
+                    get_info_and_real_price, repeat(state), product_list))
+    else:
+        with concurrent.futures.ProcessPoolExecutor() as executor:
+            state.products = list(executor.map(
+                    get_products_data,
+                    repeat(state.transactions), state.info))
+        placeholder.empty()

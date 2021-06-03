@@ -10,8 +10,8 @@ def main():
     st.set_page_config(layout='wide')
     state = _get_state()
 
+    placeholder = st.empty()
     if state.degiro is None:
-        placeholder = st.empty()
         with placeholder.form('2FA'):
             username = st.text_input('Username', '')
             password = st.text_input('Password', '', type='password')

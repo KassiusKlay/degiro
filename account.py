@@ -91,10 +91,12 @@ def general_data(state):
     for product in state.products:
         df = pd.concat([df, product['general_data']])
     df = df.set_index('name')
-    df = df.style.applymap(
-            percentage, subset=['fromHigh52', 'profit']).format(
+    df = df.sort_values(by=['currentValue'], ascending=False)
+    styler = df.style.applymap(
+            percentage, subset=['change', 'fromHigh52', 'profit']).format(
                     {
                         'lastPrice': '{:,.2f}',
+                        'change': '{:+.1%}',
                         'low52': '{:,.2f}',
                         'high52': '{:,.2f}',
                         'fromHigh52': '{:+.1%}',
@@ -104,7 +106,7 @@ def general_data(state):
                         'sellCost': '{:,.2f}',
                         'currentValue': '{:,.2f}',
                         'profit': '{:+.1%}'})
-    st.write(df)
+    st.write(styler)
 
 
 def show(state):
@@ -114,7 +116,7 @@ def show(state):
     free_cash(state)
     last_movement(deposits_dataframe)
     last_order(state)
-    options = ['Account Movements', 'Global Stock Data']
+    options = ['General Portfolio Data', 'Account Movements']
     selection = st.radio('', options)
     if selection == 'Account Movements':
         deposits_chart(deposits_dataframe)
