@@ -31,7 +31,6 @@ def show_general_data(df):
     st.write(styler)
 
 
-
 def plot_stocks(state, list_of_stocks):
     for stock in list_of_stocks:
         i = [i for i, _ in enumerate(state.products) if _['name'] == stock][0]
