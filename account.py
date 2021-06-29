@@ -8,13 +8,6 @@ def get_deposits_dataframe(df):
     df = df.copy()
     df = df.loc[
             df.description.str.contains('Dep|With')]
-
-    # df.description = df.description.replace(
-            # 'flatex Deposit',
-            # 'Deposit')
-    # df.description = df.description.replace(
-            # 'Depósito',
-            # 'Deposit')
     df.description = df.description.where(
             ~df.description.str.contains('Dep'), 'Deposit')
     return df
